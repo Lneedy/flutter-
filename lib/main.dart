@@ -1,39 +1,83 @@
 import 'package:flutter/material.dart';
 
-void main () => runApp(MyApp(
-  items: List<String>.generate(100,(i) => "item $i")
-));
+void main(){
+  runApp(MaterialApp(
+    title:'导航演示1',
+    home:FatherScreen(
+      products: List.generate(100,(i)=> Product('$i','商品 $i','$i的商品详情'))
+    )
+  ));
+}
 
-class MyApp extends StatelessWidget {
-  final List<String> items;
-  MyApp({Key key,@required this.items}) : super(key: key);
-  @override 
-  Widget build (BuildContext context){
-    return MaterialApp(
-      title:'hhh',
-      home:Scaffold(
-        appBar: AppBar(
-          title:Text('鑫哥的ListView1'),
-        ),
-        body: GridView.count(
-          crossAxisCount:3,
-          crossAxisSpacing: 3,
-          mainAxisSpacing: 3,
-          childAspectRatio:0.7,
-          children: <Widget>[
-            Image.network('http://img5.mtime.cn/mt/2018/10/22/104316.77318635_180X260X4.jpg',fit: BoxFit.cover),
-             Image.network('http://img5.mtime.cn/mt/2018/10/10/112514.30587089_180X260X4.jpg',fit: BoxFit.cover),
-             Image.network('http://img5.mtime.cn/mt/2018/11/13/093605.61422332_180X260X4.jpg',fit: BoxFit.cover),
-             Image.network('http://img5.mtime.cn/mt/2018/11/07/092515.55805319_180X260X4.jpg',fit: BoxFit.cover),
-             Image.network('http://img5.mtime.cn/mt/2018/11/21/090246.16772408_135X190X4.jpg',fit: BoxFit.cover),
-             Image.network('http://img5.mtime.cn/mt/2018/11/17/162028.94879602_135X190X4.jpg',fit: BoxFit.cover),
-             Image.network('http://img5.mtime.cn/mt/2018/11/19/165350.52237320_135X190X4.jpg',fit: BoxFit.cover),
-             Image.network('http://img5.mtime.cn/mt/2018/11/16/115256.24365160_180X260X4.jpg',fit: BoxFit.cover),
-             Image.network('http://img5.mtime.cn/mt/2018/11/20/141608.71613590_135X190X4.jpg',fit: BoxFit.cover),
-          ],
-        ),
+class Product {
+  final String title; //商品标题
+  final String description; //商品描述
+  final String id; //商品唯一id
+  Product(this.id ,this.title, this.description);
+}
 
-     ),
+class FatherScreen extends StatelessWidget{
+  final List<Product> products;
+  FatherScreen({
+    Key key,
+    @required this.products
+  }): super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('商品列表')),
+      body:ListView.builder(
+        itemCount: products.length,
+        itemBuilder:(context, index){
+          return ListTile(
+            title: Text(products[index].title),
+            onTap:(){
+              _navigateToChild(context,products[index]);
+            }
+          );
+        }
+      )
+    );
+  }
+  _navigateToChild(BuildContext context,@required dynamic products) async{
+    final result = await Navigator.push(context, MaterialPageRoute(
+      builder: (context) => ChildScreen(product:products)
+    ));
+    Scaffold.of(context).showSnackBar(SnackBar(
+      content: Text('$result')
+    ));
+  }
+}
+
+class  ChildScreen extends StatelessWidget {
+  final Product product;
+  ChildScreen({
+    Key key,
+    @required this.product
+  }):super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      appBar:AppBar(
+        title:Text('${product.title}'),
+        ),
+      body:Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+         Text('${product.description}'),
+         Center(
+           child:RaisedButton(
+              child:Text(
+                '点击跳转到首页'
+              ),
+              onPressed:(){
+                Navigator.pop(context,'当前返回的页面id是:${product.id}');
+              }
+            )
+         ),
+        ],
+      )
     );
   }
 }
